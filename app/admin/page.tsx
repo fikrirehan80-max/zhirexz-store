@@ -63,50 +63,81 @@ export default function Admin() {
         <button onClick={() => setTab("products")} className={`px-4 py-2 rounded ${tab === "products"? "bg-blue-500 text-white" : "bg-gray-200"}`}>Kelola Produk</button>
       </div>
 
-      {tab === "orders" && (
-        <div className="mt-4">
-          {orders.length === 0? <p>Belum ada order</p> :
-            orders.map(o => (
-              <div key={o.id} className="border-2 border-yellow-400 rounded-xl p-4 mt-4">
-                <p><b>Produk:</b> {o.produk}</p><p><b>Harga:</b> Rp{o.harga.toLocaleString()}</p>
-                <p><b>WA:</b> {o.wa}</p><p><b>User:</b> {o.user}</p>
-                <p><b>Tanggal:</b> {o.tanggal}</p>
-                <p><b>Status:</b> <span className={o.status === 'PENDING'? 'text-red-500' : 'text-green-500'}>{o.status}</span></p>
-                {o.bukti && <img src={o.bukti} className="w-60 mt-2 cursor-pointer border" onClick={() => window.open(o.bukti, '_blank')}/>}
-                {o.status === 'PENDING' && <button onClick={() => updateStatus(o.id)} className="mt-2 bg-green-500 text-white p-2 rounded">Tandai Sudah Bayar</button>}
-              </div>
-            ))
-          }
+      {tab === "orders" && ("use client"
+import { useState, useEffect } from "react"
+
+export default function Admin() {
+  const [password, setPassword] = useState("")
+  const [isLogin, setIsLogin] = useState(false)
+  const [products, setProducts] = useState<any[]>([])
+  const [name, setName] = useState("")
+  const [price, setPrice] = useState("")
+  const [desc, setDesc] = useState("")
+
+  const ADMIN_PASS = "admin123" // GANTI PASSWORD KAMU DISINI
+
+  useEffect(() => {
+    const data = localStorage.getItem("products")
+    if (data) setProducts(JSON.parse(data))
+  }, [])
+
+  const saveProducts = (newProducts: any[]) => {
+    setProducts(newProducts)
+    localStorage.setItem("products", JSON.stringify(newProducts))
+  }
+
+  const addProduct = () => {
+    if (!name || !price) return alert("Nama & Harga wajib!")
+    const newProducts = [...products, { name, price, desc }]
+    saveProducts(newProducts)
+    setName(""); setPrice(""); setDesc("")
+  }
+
+  const deleteProduct = (i: number) => {
+    const newProducts = products.filter((_, index) => index !== i)
+    saveProducts(newProducts)
+  }
+
+  if (!isLogin) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="bg-zinc-900 p-8 rounded-2xl w-80">
+          <h1 className="text-2xl font-bold mb-4">Login Admin</h1>
+          <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)}
+            className="w-full p-2 mb-4 bg-black border border-zinc-700 rounded"/>
+          <button onClick={() => password === ADMIN_PASS ? setIsLogin(true) : alert("Salah!")}
+            className="w-full bg-yellow-400 text-black font-bold py-2 rounded">Masuk</button>
         </div>
-      )}
+      </div>
+    )
+  }
 
-      {tab === "products" && (
-        <div className="mt-4">
-          <div className="border-2 border-purple-500 rounded-xl p-4 mb-6">
-            <h2 className="font-bold text-lg mb-2">+ Tambah Produk Baru</h2>
-            <select value={newKat} onChange={e => setNewKat(e.target.value)} className="border p-2 w-full rounded mb-2">
-              <option value="vps">VPS NAT</option><option value="panel">PANEL</option>
-              <option value="script">SCRIPT</option><option value="app">APP PREMIUM</option>
-            </select>
-            <input placeholder="Nama Produk" value={newNama} onChange={e => setNewNama(e.target.value)} className="border p-2 w-full rounded mb-2"/>
-            <input placeholder="Harga" type="number" value={newHarga} onChange={e => setNewHarga(e.target.value)} className="border p-2 w-full rounded mb-2"/>
-            <input placeholder="Deskripsi" value={newDesk} onChange={e => setNewDesk(e.target.value)} className="border p-2 w-full rounded mb-2"/>
-            <button onClick={tambahProduk} className="w-full bg-green-500 text-white p-2 rounded font-bold">Simpan Produk</button>
-          </div>
+  return (
+    <main className="min-h-screen p-6 max-w-2xl mx-auto">
+      <h1 className="text-3xl font-bold mb-6">Admin Panel 🔥</h1>
+      
+      {/* FORM TAMBAH PRODUK */}
+      <div className="bg-zinc-900 p-6 rounded-2xl mb-6">
+        <h2 className="font-bold mb-4">Tambah Produk</h2>
+        <input placeholder="Nama Produk" value={name} onChange={e => setName(e.target.value)} className="w-full p-2 mb-2 bg-black rounded"/>
+        <input placeholder="Harga" type="number" value={price} onChange={e => setPrice(e.target.value)} className="w-full p-2 mb-2 bg-black rounded"/>
+        <textarea placeholder="Deskripsi" value={desc} onChange={e => setDesc(e.target.value)} className="w-full p-2 mb-2 bg-black rounded"/>
+        <button onClick={addProduct} className="w-full bg-yellow-400 text-black font-bold py-2 rounded">Tambah</button>
+      </div>
 
-          {Object.entries(products).map(([kat, items]: any) => (
-            <div key={kat} className="mb-6">
-              <h2 className="font-bold text-purple-600">{kat.toUpperCase()}</h2>
-              {items.map((p: any) => (
-                <div key={p.id} className="border p-2 rounded flex justify-between mt-2">
-                  <div><p className="font-bold">{p.nama} - Rp{p.harga.toLocaleString()}</p><p className="text-sm">{p.deskripsi}</p></div>
-                  <button onClick={() => hapusProduk(kat, p.id)} className="bg-red-500 text-white px-3 rounded">Hapus</button>
-                </div>
-              ))}
+      {/* DAFTAR PRODUK */}
+      <div className="space-y-2">
+        {products.map((p, i) => (
+          <div key={i} className="bg-zinc-900 p-4 rounded flex justify-between">
+            <div>
+              <p className="font-bold">{p.name}</p>
+              <p className="text-yellow-400">Rp {p.price}</p>
             </div>
-          ))}
-        </div>
-      )}
-    </div>
+            <button onClick={() => deleteProduct(i)} className="text-red-500">Hapus</button>
+          </div>
+        ))}
+      </div>
+      <a href="/" className="block text-center mt-6 text-gray-400">← Kembali ke Toko</a>
+    </main>
   )
-}
+          }
