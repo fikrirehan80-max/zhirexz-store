@@ -79,6 +79,22 @@ export default function Admin() {
   useEffect(() => {
     const data = localStorage.getItem("products")
     if (data) setProducts(JSON.parse(data))
+"use client"
+import { useState, useEffect } from "react"
+
+export default function Admin() {
+  const [password, setPassword] = useState("")
+  const [isLogin, setIsLogin] = useState(false)
+  const [products, setProducts] = useState<any[]>([])
+  const [name, setName] = useState("")
+  const [price, setPrice] = useState("")
+  const [desc, setDesc] = useState("")
+
+  const ADMIN_PASS = "admin123"
+
+  useEffect(() => {
+    const data = localStorage.getItem("products")
+    if (data) setProducts(JSON.parse(data))
   }, [])
 
   const saveProducts = (newProducts: any[]) => {
@@ -100,12 +116,12 @@ export default function Admin() {
 
   if (!isLogin) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-black">
         <div className="bg-zinc-900 p-8 rounded-2xl w-80">
-          <h1 className="text-2xl font-bold mb-4">Login Admin</h1>
+          <h1 className="text-2xl font-bold mb-4 text-white">Login Admin</h1>
           <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)}
-            className="w-full p-2 mb-4 bg-black border border-zinc-700 rounded"/>
-          <button onClick={() => password === ADMIN_PASS ? setIsLogin(true) : alert("Salah!")}
+            className="w-full p-2 mb-4 bg-black border-zinc-700 rounded text-white"/>
+          <button onClick={() => password === ADMIN_PASS ? setIsLogin(true) : alert("Password Salah!")}
             className="w-full bg-yellow-400 text-black font-bold py-2 rounded">Masuk</button>
         </div>
       </div>
@@ -113,24 +129,22 @@ export default function Admin() {
   }
 
   return (
-    <main className="min-h-screen p-6 max-w-2xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6">Admin Panel 🔥</h1>
+    <main className="min-h-screen p-6 max-w-2xl mx-auto bg-black">
+      <h1 className="text-3xl font-bold mb-6 text-white">Admin Panel 🔥</h1>
       
-      {/* FORM TAMBAH PRODUK */}
       <div className="bg-zinc-900 p-6 rounded-2xl mb-6">
-        <h2 className="font-bold mb-4">Tambah Produk</h2>
-        <input placeholder="Nama Produk" value={name} onChange={e => setName(e.target.value)} className="w-full p-2 mb-2 bg-black rounded"/>
-        <input placeholder="Harga" type="number" value={price} onChange={e => setPrice(e.target.value)} className="w-full p-2 mb-2 bg-black rounded"/>
-        <textarea placeholder="Deskripsi" value={desc} onChange={e => setDesc(e.target.value)} className="w-full p-2 mb-2 bg-black rounded"/>
+        <h2 className="font-bold mb-4 text-white">Tambah Produk</h2>
+        <input placeholder="Nama Produk" value={name} onChange={e => setName(e.target.value)} className="w-full p-2 mb-2 bg-black border-zinc-700 rounded text-white"/>
+        <input placeholder="Harga" type="number" value={price} onChange={e => setPrice(e.target.value)} className="w-full p-2 mb-2 bg-black border-zinc-700 rounded text-white"/>
+        <textarea placeholder="Deskripsi" value={desc} onChange={e => setDesc(e.target.value)} className="w-full p-2 mb-2 bg-black border border-zinc-700 rounded text-white"/>
         <button onClick={addProduct} className="w-full bg-yellow-400 text-black font-bold py-2 rounded">Tambah</button>
       </div>
 
-      {/* DAFTAR PRODUK */}
       <div className="space-y-2">
         {products.map((p, i) => (
           <div key={i} className="bg-zinc-900 p-4 rounded flex justify-between">
             <div>
-              <p className="font-bold">{p.name}</p>
+              <p className="font-bold text-white">{p.name}</p>
               <p className="text-yellow-400">Rp {p.price}</p>
             </div>
             <button onClick={() => deleteProduct(i)} className="text-red-500">Hapus</button>
@@ -140,4 +154,4 @@ export default function Admin() {
       <a href="/" className="block text-center mt-6 text-gray-400">← Kembali ke Toko</a>
     </main>
   )
-          }
+  }
